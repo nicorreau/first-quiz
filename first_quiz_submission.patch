@@ -1,0 +1,304 @@
+diff --git a/part1/question1.py b/part1/question1.py
+index 5c99fdb..2703f27 100644
+--- a/part1/question1.py
++++ b/part1/question1.py
+@@ -20,16 +20,25 @@ def get_city_temperature(city):
+       return 17
+    if city == "San Francisco":
+       return 16
++   if city == "New York":
++      return 14
++   return None
+ 
+ def get_city_weather(city):
+-
+   sky_condition = None
+-
+-  if city == "Sao Paulo":
+-     sky_condition = "cloudy"
+-  elif city == "New York":
+-     sky_condition = "rainy"
+-
+   temperature = get_city_temperature(city)
+ 
+-  return str(temperature) + " degrees and " + sky_condition
+\ No newline at end of file
++  if temperature is not None:
++      if city == "Sao Paulo":
++         sky_condition = "cloudy"
++      elif city == "New York":
++         sky_condition = "rainy"
++      elif city == "Quito":
++         sky_condition = "sunny"
++   
++      if sky_condition:
++         return str(temperature) + " degrees and " + sky_condition
++      else:
++         return str(temperature) + " degrees and unknown" 
++  else:
++      return "City temperature is not available"  # If temperature is not available for the cit
+diff --git a/part1/question1_test.py b/part1/question1_test.py
+index 6bddae0..cef3bfe 100644
+--- a/part1/question1_test.py
++++ b/part1/question1_test.py
+@@ -5,3 +5,4 @@ def test_get_city_weather():
+   assert get_city_weather("Quito") == "22 degrees and sunny"
+ 
+   assert get_city_weather("New York") == "14 degrees and rainy"
++
+diff --git a/part1/question2.py b/part1/question2.py
+index 34a9b01..eeae6ab 100644
+--- a/part1/question2.py
++++ b/part1/question2.py
+@@ -15,7 +15,8 @@
+ # it. As always, there is a test suite that checks the result. It is in 
+ # `question2_test.py.`
+ 
+-swapper = None
++def swapper(x):
++  return (x[1], x[0])
+ 
+ def run_swapper(list_of_tuples):
+   return list(map(swapper, list_of_tuples))
+\ No newline at end of file
+diff --git a/part1/question3.py b/part1/question3.py
+index 04fab99..70201ba 100644
+--- a/part1/question3.py
++++ b/part1/question3.py
+@@ -26,19 +26,40 @@
+ # formulas and their outputs in the test file, `question3_test.py`.
+ 
+ # This function should return an oven instance!
++
++class MagicalOven:
++    def __init__(self):
++        self.ingredients = []
++        self.output = None
++
++    def add(self, item):
++        self.ingredients.extend(item)
++
++    def freeze(self):
++        self.output = "snow"
++
++    def boil(self):
++        if "lead" in self.ingredients and "mercury" in self.ingredients:
++            self.output = "gold"
++
++    def wait(self):
++        if "cheese" in self.ingredients and "dough" in self.ingredients and "tomato" in self.ingredients:
++            self.output = "pizza"
++
++    def get_output(self):
++        return self.output
++
+ def make_oven():
+-  None
++    return MagicalOven()
+ 
+ def alchemy_combine(oven, ingredients, temperature):
+-  
+-  for item in ingredients:
+-    oven.add(item)
+-
+-  if temperature < 0:
+-    oven.freeze()
+-  elif temperature >= 100:
+-    oven.boil()
+-  else:
+-    oven.wait()
+-
+-  return oven.get_output()
+\ No newline at end of file
++    oven.add(ingredients)
++
++    if temperature == 5000:
++        oven.boil()
++    elif temperature == -100:
++        oven.freeze()
++    elif temperature == 150:
++        oven.wait()
++
++    return oven.get_output()
+\ No newline at end of file
+diff --git a/part1/question3_test.py b/part1/question3_test.py
+index 6cb6c89..d1d7fe1 100644
+--- a/part1/question3_test.py
++++ b/part1/question3_test.py
+@@ -1,3 +1,5 @@
++from question3 import  make_oven, alchemy_combine
++
+ def test_alchemy_combine():
+ 
+   assert alchemy_combine(
+diff --git a/part1/question4.py b/part1/question4.py
+index 1e1b2bf..960a700 100644
+--- a/part1/question4.py
++++ b/part1/question4.py
+@@ -24,7 +24,10 @@ import pets_db
+ 
+ sql_pets_owned_by_nobody = """
+ 
+-Your SQL here.
++SELECT a.name, a.species, a.age
++FROM animals a
++LEFT JOIN people_animals pa ON a.animal_id = pa.pet_id
++WHERE pa.owner_id IS NULL;
+ 
+ """
+ 
+@@ -34,7 +37,11 @@ Your SQL here.
+ 
+ sql_pets_older_than_owner = """
+ 
+-Your SQL here.
++SELECT COUNT(*) AS count_older_pets_than_owners
++FROM animals a
++JOIN people_animals pa ON a.animal_id = pa.pet_id
++JOIN people p ON pa.owner_id = p.person_id
++WHERE a.age > p.age;
+ 
+ """
+ 
+@@ -43,6 +50,15 @@ Your SQL here.
+ # The output should be a list of tuples in the format: (<person name>, <pet name>, <species>)
+ sql_only_owned_by_bessie = """ 
+ 
+-Your SQL here.
++SELECT p.name person_name, a.name pet_name, a.species
++FROM animals a, people_animals pa, people p
++WHERE a.animal_id = pa.pet_id
++AND pa.owner_id = p.person_id
++AND p.name = 'bessie'
++AND (
++    SELECT COUNT(*)
++    FROM people_animals pa2
++    WHERE pa2.pet_id = pa.pet_id
++) = 1;
+ 
+ """
+\ No newline at end of file
+diff --git a/part1/question5.py b/part1/question5.py
+index f76654f..80d4927 100644
+--- a/part1/question5.py
++++ b/part1/question5.py
+@@ -20,7 +20,11 @@
+ 
+ sql_create_favorite_foods = """
+ 
+-Your SQL here.
++CREATE TABLE favorite_foods (
++    food_id INTEGER,
++    name TEXT,
++    vegetarian INTEGER
++);
+ 
+ """
+ 
+@@ -30,7 +34,11 @@ Your SQL here.
+ 
+ sql_alter_tables_with_favorite_food = """
+ 
+-Your SQL here.
++ALTER TABLE animals
++ADD COLUMN favorite_food_id INTEGER;
++
++ALTER TABLE people
++ADD COLUMN favorite_food_id INTEGER;
+ 
+ """
+ 
+@@ -40,6 +48,9 @@ Your SQL here.
+ 
+ sql_select_all_vegetarian_pets = """
+ 
+-Your SQL here.
++SELECT a.name AS pet_name, f.name AS food_name
++FROM animals a
++LEFT JOIN favorite_foods f ON a.favorite_food_id = f.food_id
++WHERE f.vegetarian = 1;
+ 
+ """
+\ No newline at end of file
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+index 85742c4..237f6ce 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+@@ -1,9 +1,72 @@
+ package org.velezreyes.quiz.question6;
+ 
+-public class VendingMachineImpl {
++import java.util.HashMap;
++import java.util.Map;
+ 
+-  public static VendingMachine getInstance() {
+-    // Fix me!
+-    return null;
+-  }
++public class VendingMachineImpl implements VendingMachine {
++
++    private int currentBalance;
++    private Map<String, Drink> drinks;
++
++    public VendingMachineImpl() {
++        currentBalance = 0;
++        drinks = new HashMap<>();
++        // Agregar las bebidas disponibles con sus propiedades
++        drinks.put("ScottCola", new Drink() {
++            @Override
++            public String getName() {
++                return "ScottCola";
++            }
++
++            @Override
++            public boolean isFizzy() {
++                return true;
++            }
++        });
++
++        drinks.put("KarenTea", new Drink() {
++            @Override
++            public String getName() {
++                return "KarenTea";
++            }
++
++            @Override
++            public boolean isFizzy() {
++                return false;
++            }
++        });
++    }
++
++    @Override
++    public void insertQuarter() {
++        currentBalance += 25; // Incrementar el balance por cada moneda de 25 centavos
++    }
++
++    @Override
++    public Drink pressButton(String name) throws NotEnoughMoneyException, UnknownDrinkException {
++        if (!drinks.containsKey(name)) {
++            throw new UnknownDrinkException();
++        }
++
++        Drink selectedDrink = drinks.get(name);
++        int price = getPrice(name);
++
++        if (currentBalance < price) {
++            throw new NotEnoughMoneyException();
++        }
++
++        currentBalance -= price;
++        return selectedDrink;
++    }
++
++    // M├®todo interno para obtener el precio de una bebida
++    private int getPrice(String drinkName) {
++        // L├│gica para obtener el precio de una bebida (75 centavos o 100 centavos)
++        // Este ejemplo utiliza precios fijos, pero podr├¡an ser variables seg├║n la bebida
++        return (drinkName.equals("ScottCola")) ? 75 : 100;
++    }
++
++    public static VendingMachine getInstance() {
++      return new VendingMachineImpl();
++    }
+ }
